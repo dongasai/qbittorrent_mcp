@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 核心技术栈
 
 - **Laravel 12** - 主要框架
-- **php-mcp/laravel** - 提供 MCP 服务器功能 @docs/lmcp.md
+- **laravel/mcp** - 提供 MCP 服务器功能 @docs/lmcp.md
 - **dongasai/php-qbittorrent** - qBittorrent API 封装 @vendor/dongasai/php-qbittorrent/docs/api.md
 - **PHP 8.2+** - 最低 PHP 版本要求
 
