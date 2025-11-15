@@ -3,39 +3,65 @@
 namespace App\Services\Mcp\Tools;
 
 use App\Services\QbittorrentService;
-use PhpMcp\Server\Attributes\McpTool;
+use Illuminate\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Log;
+use Laravel\Mcp\Request;
+use Laravel\Mcp\Response;
+use Laravel\Mcp\Server\Tool;
+use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 /**
  * qBittorrent 获取应用设置工具
  *
  * 获取 qBittorrent 应用的偏好设置，包括下载、上传、界面等各种配置
  */
-class GetAppPreferencesTool
+#[IsReadOnly]
+#[IsIdempotent]
+class GetAppPreferencesTool extends Tool
 {
     /**
-     * 获取 qBittorrent 应用设置
-     *
-     * 获取应用的完整偏好设置：
-     * - 下载设置
-     * - 上传设置
-     * - 界面设置
-     * - 连接设置
-     * - 高级设置
+     * The tool's description.
      */
-    #[McpTool(name: 'get_app_preferences')]
-    public function getAppPreferences(): array
+    protected string $description = '获取 qBittorrent 应用的完整偏好设置，包括下载、上传、界面、连接和高级配置';
+
+    /**
+     * The tool's name.
+     */
+    protected string $name = 'get_app_preferences';
+
+    /**
+     * The tool's title.
+     */
+    protected string $title = 'Get qBittorrent App Preferences';
+
+    /**
+     * Get the tool's input schema.
+     *
+     * @return array<string, JsonSchema>
+     */
+    public function schema(JsonSchema $schema): array
+    {
+        return [
+            // 此工具不需要输入参数
+        ];
+    }
+
+    /**
+     * Handle the tool request.
+     */
+    public function handle(Request $request): Response
     {
         try {
             $qbittorrent = QbittorrentService::getInstance();
 
-            return $qbittorrent->executeWithAuth(function ($client) use ($qbittorrent) {
+            $preferencesData = $qbittorrent->executeWithAuth(function ($client) use ($qbittorrent) {
                 // 获取应用偏好设置
                 $preferencesRequest = \PhpQbittorrent\Request\Application\GetPreferencesRequest::create();
                 $preferencesResponse = $client->application()->getPreferences($preferencesRequest);
 
-                if (!$preferencesResponse->isSuccess()) {
-                    throw new \Exception('无法获取应用设置: ' . implode(', ', $preferencesResponse->getErrors()));
+                if (! $preferencesResponse->isSuccess()) {
+                    throw new \Exception('无法获取应用设置: '.implode(', ', $preferencesResponse->getErrors()));
                 }
 
                 $preferences = $preferencesResponse->getData()['preferences'] ?? [];
@@ -100,25 +126,25 @@ class GetAppPreferencesTool
                             'os_cache' => $preferences['os_cache'] ?? true,
                             'embedded_tracker' => $preferences['embedded_tracker'] ?? false,
                             'embedded_tracker_port' => $preferences['embedded_tracker_port'] ?? 9000,
-                        ]
+                        ],
                     ],
                     'connection_info' => [
                         'server_url' => $qbittorrent->getServerConfig()['base_url'] ?? 'unknown',
                         'username' => $qbittorrent->getServerConfig()['username'] ?? 'unknown',
-                        'connected' => $qbittorrent->getServerConfig()['connected'] ?? false
-                    ]
+                        'connected' => $qbittorrent->getServerConfig()['connected'] ?? false,
+                    ],
                 ];
             });
+
+            return Response::text(json_encode($preferencesData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
         } catch (\Exception $e) {
             Log::error('获取应用设置失败', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return [
-                'success' => false,
-                'error' => '获取应用设置失败: ' . $e->getMessage()
-            ];
+            return Response::text('获取应用设置失败: '.$e->getMessage());
         }
     }
 }

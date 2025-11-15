@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 核心技术栈
 
 - **Laravel 12** - 主要框架
-- **laravel/mcp** - 提供 MCP 服务器功能 @docs/lmcp.md
+- **laravel/mcp** - 提供 MCP 服务器功能 @docs/laravelmcp.md.md
 - **dongasai/php-qbittorrent** - qBittorrent API 封装 @vendor/dongasai/php-qbittorrent/docs/api.md
 - **PHP 8.2+** - 最低 PHP 版本要求
 
@@ -19,12 +19,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - 项目使用中文作为主要沟通语言
 - 不需要数据库配置，项目专注于 MCP 服务
-- 详细的 MCP Laravel  使用文档请参考：@`docs/lmcp.md`
+- 详细的 MCP Laravel  使用文档请参考：@docs/laravelmcp.md
 - 我已经启动测试服务器,请勿重新启动,查看日志发现错误
 - 不要依赖注入
 - 项目很小,不要使用复杂的写法
 - 日志驱动daily
 
+## 测试
+```bash
+# 执行
+echo "mcp规范的json字符串" | php artisan mcp:start qbittorrent
+# 示例
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_server_info","arguments":{}}}' | php artisan mcp:start qbittorrent
+````
 
 ===
 

@@ -3,32 +3,59 @@
 namespace App\Services\Mcp\Tools;
 
 use App\Services\QbittorrentService;
-use PhpMcp\Server\Attributes\McpTool;
+use Illuminate\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Log;
+use Laravel\Mcp\Request;
+use Laravel\Mcp\Response;
+use Laravel\Mcp\Server\Tool;
+use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 /**
  * qBittorrent 服务器信息工具
  *
  * 获取 qBittorrent 服务器的完整信息，包括应用版本、API版本、构建信息和默认保存位置
  */
-class ServerInfoTool
+#[IsReadOnly]
+#[IsIdempotent]
+class ServerInfoTool extends Tool
 {
     /**
-     * 查看 qBittorrent 服务器信息
-     *
-     * 获取服务器的完整信息：
-     * - 应用版本
-     * - API版本
-     * - 构建信息
-     * - 默认保存位置
+     * The tool's description.
      */
-    #[McpTool(name: 'get_server_info')]
-    public function getServerInfo(): array
+    protected string $description = '获取 qBittorrent 服务器的完整信息，包括应用版本、API版本、构建信息和默认保存位置';
+
+    /**
+     * The tool's name.
+     */
+    protected string $name = 'get_server_info';
+
+    /**
+     * The tool's title.
+     */
+    protected string $title = 'Get qBittorrent Server Info';
+
+    /**
+     * Get the tool's input schema.
+     *
+     * @return array<string, JsonSchema>
+     */
+    public function schema(JsonSchema $schema): array
+    {
+        return [
+            // 此工具不需要输入参数
+        ];
+    }
+
+    /**
+     * Handle the tool request.
+     */
+    public function handle(Request $request): Response
     {
         try {
             $qbittorrent = QbittorrentService::getInstance();
 
-            return $qbittorrent->executeWithAuth(function ($client) use ($qbittorrent) {
+            $serverInfo = $qbittorrent->executeWithAuth(function ($client) use ($qbittorrent) {
                 // 获取应用版本
                 $versionRequest = \PhpQbittorrent\Request\Application\GetVersionRequest::create();
                 $versionResponse = $client->application()->getVersion($versionRequest);
@@ -59,30 +86,27 @@ class ServerInfoTool
                 }
 
                 return [
-                    'success' => true,
-                    'server_info' => [
-                        'application_version' => $version,
-                        'api_version' => $apiVersion,
-                        'build_info' => $buildInfo,
-                        'default_save_path' => $savePath,
-                        'connection_config' => [
-                            'server_url' => $qbittorrent->getServerConfig()['base_url'] ?? 'unknown',
-                            'username' => $qbittorrent->getServerConfig()['username'] ?? 'unknown',
-                            'connected' => $qbittorrent->getServerConfig()['connected'] ?? false
-                        ]
-                    ]
+                    'application_version' => $version,
+                    'api_version' => $apiVersion,
+                    'build_info' => $buildInfo,
+                    'default_save_path' => $savePath,
+                    'connection_config' => [
+                        'server_url' => $qbittorrent->getServerConfig()['base_url'] ?? 'unknown',
+                        'username' => $qbittorrent->getServerConfig()['username'] ?? 'unknown',
+                        'connected' => $qbittorrent->getServerConfig()['connected'] ?? false,
+                    ],
                 ];
             });
+
+            return Response::text(json_encode($serverInfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
         } catch (\Exception $e) {
             Log::error('获取服务器信息失败', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return [
-                'success' => false,
-                'error' => '获取服务器信息失败: ' . $e->getMessage()
-            ];
+            return Response::text('获取服务器信息失败: '.$e->getMessage());
         }
     }
 }
