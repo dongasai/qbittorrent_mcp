@@ -9,13 +9,13 @@
         "php": "^8.2",
         "dongasai/php-qbittorrent": "dev-main",
         "laravel/framework": "^12.0",
-        "laravel/mcp": "^0.3.2",
-        "laravel/prompts": "^0.3.7",
-        "laravel/tinker": "^2.10.1"
+        "laravel/tinker": "^2.10.1",
+        "php-mcp/laravel": "^3.0",
+        "psr/http-factory": "^1.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
-        "laravel/boost": "^1.7",
+        "laravel/boost": "^1.8",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",
         "laravel/sail": "^1.41",

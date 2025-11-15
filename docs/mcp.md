@@ -1,17 +1,12 @@
 # qbittorrent MCP功能
 
+```bash
+npx @modelcontextprotocol/inspector 
+```
 ## tool列表
-- 查看服务器信息
-- 列出
-
-## 资源列表
-- 查看服务器信息 
-    * 应用版本
-    * Api版本
-    * build信息
+- 查看服务器信息  应用版本/Api版本/build信息/默认保存位置
 - 获取应用设置 (Get application preferences)
-- 获取默认保存位置
-- Get main data
+- 获取主要数据
 - Get torrent peers data 
 - 获取全局传输信息
 - Get global download limit 
@@ -33,6 +28,5 @@
 - 暂停所有种子
 - 恢复所有种子
 - 切换备选速度限制
-- 
 
 ## 详述

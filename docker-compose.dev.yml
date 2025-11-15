@@ -8,4 +8,4 @@ services:
     container_name: mcp_qbit
     restart: unless-stopped
     ports:
-      - "34007:80"
+      - "34009:34009"

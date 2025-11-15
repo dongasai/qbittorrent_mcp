@@ -1,7 +1,4 @@
-# 基于Laravel的 qbittorrent MCP
+# qBittorrent MCP 服务器
 
+一个基于 Laravel 12 的 qBittorrent MCP (Model Context Protocol) 服务器，提供完整的 qBittorrent 管理功能。
 
-## 技术栈
-laravel 12 
-laravel/mcp 包提供llm mcp能力 @docs/lmcp.md
-dongasai/php-qbittorrent 包提供qbittorrent的Api封装

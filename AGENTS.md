@@ -1,33 +1,3 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## 项目概述
-
-这是一个基于 Laravel 12 的 qBittorrent MCP (Model Context Protocol) 项目，提供了通过 MCP 协议与 qBittorrent 交互的能力。
-
-
-## 核心技术栈
-
-- **Laravel 12** - 主要框架
-- **php-mcp/laravel** - 提供 MCP 服务器功能 @docs/lmcp.md
-- **dongasai/php-qbittorrent** - qBittorrent API 封装 @vendor/dongasai/php-qbittorrent/docs/api.md
-- **PHP 8.2+** - 最低 PHP 版本要求
-
-
-## 开发注意事项
-
-- 项目使用中文作为主要沟通语言
-- 不需要数据库配置，项目专注于 MCP 服务
-- 详细的 MCP Laravel  使用文档请参考：@`docs/lmcp.md`
-- 我已经启动测试服务器,请勿重新启动,查看日志发现错误
-- 不要依赖注入
-- 项目很小,不要使用复杂的写法
-- 日志驱动daily
-
-
-===
-
 <laravel-boost-guidelines>
 === foundation rules ===
 
