@@ -110,7 +110,7 @@ class QbittorrentService
     /**
      * 安全地执行操作，自动处理登录和登出
      */
-    public function executeWithAuth(callable $operation)
+    public function executeWithAuth(callable $operation): mixed
     {
         try {
             $client = $this->getClient();

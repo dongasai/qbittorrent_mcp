@@ -3,10 +3,10 @@
 namespace App\Services\Mcp\Tools;
 
 use App\Services\QbittorrentService;
-use Laravel\Mcp\Server\Tool;
+use Illuminate\Support\Facades\Log;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
-use Illuminate\Support\Facades\Log;
+use Laravel\Mcp\Server\Tool;
 
 /**
  * 获取种子内容工具
@@ -34,7 +34,7 @@ class GetTorrentContentsTool extends Tool
 
         $result = $this->execute($hash, $limit, $offset);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return Response::error($result['error']);
         }
 
@@ -72,7 +72,7 @@ class GetTorrentContentsTool extends Tool
         try {
             $qbittorrent = QbittorrentService::getInstance();
 
-            return $qbittorrent->executeWithAuth(function ($client) use ($hash, $limit, $offset, $qbittorrent) {
+            return $qbittorrent->executeWithAuth(function (\PhpQbittorrent\Client $client) use ($hash, $limit, $offset, $qbittorrent) {
                 // 使用现有的 getTorrentFiles 方法
                 $files = $client->torrents()->getTorrentFiles($hash);
                 $result = [];
@@ -86,7 +86,7 @@ class GetTorrentContentsTool extends Tool
                         'size' => $file['size'] ?? 0,
                         'formatted_size' => $this->formatBytes($file['size'] ?? 0),
                         'progress' => ($file['progress'] ?? 0) / 100, // API 返回的是百分比，转换为小数
-                        'progress_percentage' => round($file['progress'] ?? 0, 2) . '%',
+                        'progress_percentage' => round($file['progress'] ?? 0, 2).'%',
                         'priority' => $file['priority'] ?? 1,
                         'priority_description' => $this->getPriorityDescription($file['priority'] ?? 1),
                         'is_seed' => ($file['progress'] ?? 0) >= 100,
@@ -116,17 +116,17 @@ class GetTorrentContentsTool extends Tool
                     'formatted_total_size' => $this->formatBytes($totalSize),
                     'total_downloaded' => $totalDownloaded,
                     'formatted_total_downloaded' => $this->formatBytes($totalDownloaded),
-                    'overall_progress' => $totalSize > 0 ? round(($totalDownloaded / $totalSize) * 100, 2) . '%' : '0%',
+                    'overall_progress' => $totalSize > 0 ? round(($totalDownloaded / $totalSize) * 100, 2).'%' : '0%',
                     'pagination' => [
                         'limit' => $limit,
                         'offset' => $offset,
-                        'returned_count' => count($result)
+                        'returned_count' => count($result),
                     ],
                     'connection_info' => [
                         'server_url' => $qbittorrent->getServerConfig()['base_url'] ?? 'unknown',
                         'username' => $qbittorrent->getServerConfig()['username'] ?? 'unknown',
-                        'connected' => $qbittorrent->getServerConfig()['connected'] ?? false
-                    ]
+                        'connected' => $qbittorrent->getServerConfig()['connected'] ?? false,
+                    ],
                 ];
             });
         } catch (\Exception $e) {
@@ -138,7 +138,7 @@ class GetTorrentContentsTool extends Tool
 
             return [
                 'success' => false,
-                'error' => '获取种子内容失败: ' . $e->getMessage()
+                'error' => '获取种子内容失败: '.$e->getMessage(),
             ];
         }
     }
@@ -148,12 +148,12 @@ class GetTorrentContentsTool extends Tool
      */
     private function getPriorityDescription(int $priority): string
     {
-        return match($priority) {
+        return match ($priority) {
             0 => '不下载',
             1 => '普通优先级',
             6 => '高优先级',
             7 => '最高优先级',
-            default => '优先级 ' . $priority
+            default => '优先级 '.$priority
         };
     }
 
@@ -170,6 +170,6 @@ class GetTorrentContentsTool extends Tool
             $unitIndex++;
         }
 
-        return round($bytes, 2) . ' ' . $units[$unitIndex];
+        return round($bytes, 2).' '.$units[$unitIndex];
     }
 }

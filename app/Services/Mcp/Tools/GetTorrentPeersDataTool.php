@@ -64,6 +64,7 @@ class GetTorrentPeersDataTool extends Tool
 
             $peersData = $qbittorrent->executeWithAuth(function ($client) use ($qbittorrent, $hash) {
                 // 获取种子列表以验证种子存在
+                // 获取种子列表以验证种子存在
                 $torrentsRequest = \PhpQbittorrent\Request\Torrent\GetTorrentsRequest::create();
                 $torrentsRequest->setHashes([(string) $hash]);
                 $torrentsResponse = $client->torrents()->getTorrents($torrentsRequest);
@@ -74,15 +75,14 @@ class GetTorrentPeersDataTool extends Tool
 
                 $torrent = $torrentsResponse->getTorrents()->first();
 
-                // 获取 Peers 数据
-                $peersRequest = \PhpQbittorrent\Request\Torrent\GetTorrentPeersRequest::create($hash);
-                $peersResponse = $client->torrents()->getTorrentPeers($peersRequest);
+                // 直接调用 API 端点获取 Peers 数据
+                $response = $client->torrents()->get('/peers', ['hash' => $hash]);
 
-                if (! $peersResponse->isSuccess()) {
-                    throw new \Exception('无法获取 Peers 数据: '.implode(', ', $peersResponse->getErrors()));
+                if (! $response->isSuccess()) {
+                    throw new \Exception('无法获取 Peers 数据: '.implode(', ', $response->getErrors()));
                 }
 
-                $peers = $peersResponse->getPeers();
+                $peers = json_decode($response->getRawResponse(), true);
 
                 // 处理 Peers 数据
                 $peerData = [];
